@@ -4,4 +4,4 @@ Repositorio reto para la materia Modelación de sistemas multiagentes con gráfi
 ## Autores: 
 * ### Erick Alfredo García Huerta - A01708119
 * ### Marco Antonio Camalich Pérez - A01351725
-* ### José Sebastián Pedrero Jiménez - 
+* ### José Sebastián Pedrero Jiménez - A01703331
