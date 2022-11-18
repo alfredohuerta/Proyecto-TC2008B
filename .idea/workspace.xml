@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b1f5520d-cdcd-4694-b42c-a9112153f3d6" name="Changes" comment="" />
+    <list default="true" id="b1f5520d-cdcd-4694-b42c-a9112153f3d6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/ArtifactDB" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/ArtifactDB" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/TundraBuildState.state" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/TundraBuildState.state" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/TundraBuildState.state.map" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/TundraBuildState.state.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/backend_profiler0.traceevents" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/backend_profiler0.traceevents" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/fullprofile.json" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/fullprofile.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/tundra.digestcache" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/tundra.digestcache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/tundra.log.json" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/Bee/tundra.log.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/SceneVisibilityState.asset" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/SceneVisibilityState.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/SourceAssetDB" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/SourceAssetDB" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/StateCache/MainStageHierarchy/4d/4d2a36d9faf65734f0bbefb3ee623532.json" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/StateCache/MainStageHierarchy/4d/4d2a36d9faf65734f0bbefb3ee623532.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/Library/expandedItems" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/Library/expandedItems" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TrafficSimulation/UserSettings/Layouts/default-2021.dwlt" beforeDir="false" afterPath="$PROJECT_DIR$/TrafficSimulation/UserSettings/Layouts/default-2021.dwlt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -30,16 +44,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "D:/Proyecto-TC2008B",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Proyecto-TC2008B&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -49,6 +63,11 @@
       <option name="presentableId" value="Default" />
       <updated>1667948741396</updated>
       <workItem from="1667948756281" duration="582000" />
+      <workItem from="1668725888660" duration="639000" />
+      <workItem from="1668731699009" duration="1696000" />
+      <workItem from="1668733487503" duration="2228000" />
+      <workItem from="1668758373267" duration="1654000" />
+      <workItem from="1668784962027" duration="680000" />
     </task>
     <servers />
   </component>
