@@ -15,13 +15,13 @@ public class WebClient : MonoBehaviour
     {
         WWWForm form = new WWWForm();
         form.AddField("bundle", "the data");
-        string url = "http://localhost:8585";
+        string url = "http://localhost:5000";
         using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {
             byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(data);
             www.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
             www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-            //www.SetRequestHeader("Content-Type", "text/html");
+            www.SetRequestHeader("Content-Type", "text/html");
             www.SetRequestHeader("Content-Type", "application/json");
 
             yield return www.SendWebRequest();          // Talk to Python
