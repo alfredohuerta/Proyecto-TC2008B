@@ -11,6 +11,7 @@ from flask import Flask
 
 # matplotlib lo usaremos crear una animación de cada uno de los pasos del modelo.
 # %matplotlib inline
+import matplotlib
 import matplotlib.pyplot as plt
 # Commented out IPython magic to ensure Python compatibility.
 # Importamos las clases que se requieren para manejar los agentes (Agent) y su entorno (Model).
@@ -61,6 +62,7 @@ class CarAgent(Agent):
         self.car_model = self.random.randrange(50, 255)
         self.will_stop = will_stop
         self.count_tilStop = 0
+        self.initial_lane = 0
 
     def seek_obstacle(self):
         self.cells_Per_Cycle = 3
@@ -97,7 +99,7 @@ class CarAgent(Agent):
 class RoadModel(Model):
     # Width: length of the road
     # Height: number or roads
-  def __init__(self, width, height): # Función que inicializa el modelo
+    def __init__(self, width, height): # Función que inicializa el modelo
         self.grid = SingleGrid(width, height, False) # False stands for not making the grid a Torus
         self.schedule = SimultaneousActivation(self)
         self.running = True
@@ -107,51 +109,54 @@ class RoadModel(Model):
         self.car_stop = random.randint(120, 240)
         self.active_Cars = []
         self.json = {}
+        self.car_values = []
 
         self.datacollector = DataCollector(model_reporters = {"Grid": get_grid})
 
-  def out_of_bounds_identificator(self):
-    for agent in self.active_Cars:
-      new_pos=(agent.pos[1] + agent.cells_Per_Cycle)
-      if(self.grid.out_of_bounds((agent.pos[0], new_pos))):
-            self.grid.remove_agent(agent)
-            self.schedule.remove(agent)
-            self.active_Cars.remove(agent)
+    def out_of_bounds_identificator(self):
+        for agent in self.active_Cars:
+            new_pos=(agent.pos[1] + agent.cells_Per_Cycle)
+            if(self.grid.out_of_bounds((agent.pos[0], new_pos))):
+                self.grid.remove_agent(agent)
+                self.schedule.remove(agent)
+                self.active_Cars.remove(agent)
 
-  def car_Generator(self, lane): # Función auxiliar que genera nuevos agentes
-    if (self.grid.is_cell_empty((lane, 0))): # Si la celda esta vacia, generar el agente al principio de la
-      self.iteration_Counter += 1
-      if self.iteration_Counter != self.car_stop:
-        a = CarAgent(self.car_Counter, self, 0)
-        self.grid.place_agent(a,(lane, 0))
-      else:
-        a = CarAgent(self.car_Counter, self, 1)
-        self.grid.place_agent(a,(1, 0))
-      self.car_Counter += 1
-      self.schedule.add(a)
-      self.active_Cars.append(a)
+    def car_Generator(self, lane): # Función auxiliar que genera nuevos agentes
+        if (self.grid.is_cell_empty((lane, 0))): # Si la celda esta vacia, generar el agente al principio de la carretera
+            self.iteration_Counter += 1
+            if self.iteration_Counter != self.car_stop:
+                a = CarAgent(self.car_Counter, self, 0)
+                self.grid.place_agent(a,(lane, 0))
+            else:
+                a = CarAgent(self.car_Counter, self, 1)
+                self.grid.place_agent(a,(1, 0))
+            a.initial_lane = a.pos[0]
+            self.car_Counter += 1
+            self.schedule.add(a)
+            self.active_Cars.append(a)
 
 
-  def build_JSON(self) -> None: # Función que construye el JSON a medida que se van construyendo los autos, genera un objeto de Python
-    for agent in self.active_Cars:
-      self.json[agent.unique_id]= {
-          "Unique_ID": agent.unique_id,
-          "X": agent.pos[0],
-          "Y": 0,
-          "Z": agent.pos[1],
-          "speed": agent.cells_Per_Cycle,
-      }
+    def build_JSON(self) -> None: # Función que construye el JSON a medida que se van construyendo los autos, genera un objeto de Python
+        for agent in self.active_Cars:
+            self.json[agent.unique_id] =  {
+                "id": agent.unique_id,
+                "initial_lane": agent.initial_lane,
+                "lane": agent.pos[0],
+                "track_completion": agent.pos[1],
+                "speed": agent.cells_Per_Cycle,
+            }
+        
 
-  def getJSON(self): # Función que convierte el objeto de Pyton en un JSON
-    return json.dumps(self.json)
+    def getJSON(self): # Función que convierte el objeto de Pyton en un JSON
+        return json.dumps(self.json)
 
-  def step(self):
-    lane = self.random.randint(0, 2) # Genera aleatoriamente el carril donde iniciará el auto
-    self.car_Generator(lane) # Genera el auto
-    self.datacollector.collect(self) # Inicia la recolección de datos
-    self.out_of_bounds_identificator()
-    self.schedule.step() # Activa los agentes
-    self.build_JSON() # Genera el JSON.
+    def step(self):
+        lane = self.random.randint(0, 2) # Genera aleatoriamente el carril donde iniciará el auto
+        self.car_Generator(lane) # Genera el auto
+        self.datacollector.collect(self) # Inicia la recolección de datos
+        self.out_of_bounds_identificator()
+        self.schedule.step() # Activa los agentes
+        self.build_JSON() # Genera el JSON.
 
 
 # Definimos el tamaño del Grid

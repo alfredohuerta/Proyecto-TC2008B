@@ -4,49 +4,57 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
+    bool spawnCooldown = false;
+    int carID = 0;
     public float time = 300f;
     public float movementSpeed = 100f;
     public GameObject[] vehicle;
     public Transform[] spawnpoint;
+    Car c;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("SpawnVehicle",0f,10f);
         Time.timeScale=10;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (!spawnCooldown){
+            spawnCooldown = true;
+            c = WebClient.GetTraffic(carID);
+            StartCoroutine(SpawnVehicle(c));
+            carID++;
+        }
     }
 
-    void SpawnVehicle()
+    IEnumerator SpawnVehicle(Car c)
     {
-        int x = Random.Range(0,3);
         GameObject spawn;
-        switch(x)
+        switch(c.initial_lane)
         {
             case 0:
                 spawn = Instantiate(vehicle[0],spawnpoint[0].position,Quaternion.identity);
                 spawn.SetActive(true);
-                spawn.GetComponent<Rigidbody>().AddForce(new Vector3(0f,0f,movementSpeed));
+                spawn.transform.Translate(Vector3.forward*c.speed*Time.deltaTime);
                 Destroy(spawn,time);
                 break;
             case 1:
                 spawn = Instantiate(vehicle[1],spawnpoint[1].position,Quaternion.identity);
                 spawn.SetActive(true);
-                spawn.GetComponent<Rigidbody>().AddForce(new Vector3(0f,0f,movementSpeed));
+                spawn.transform.Translate(Vector3.forward*c.speed*Time.deltaTime);
                 Destroy(spawn,time);
                 break;
             case 2:
                 spawn = Instantiate(vehicle[2],spawnpoint[2].position,Quaternion.identity);
                 spawn.SetActive(true);
-                spawn.GetComponent<Rigidbody>().AddForce(new Vector3(0f,0f,movementSpeed));
+                spawn.transform.Translate(Vector3.forward*c.speed*Time.deltaTime);
                 Destroy(spawn,time);
                 break;
-        }        
+        }
+        yield return new WaitForSeconds(10f);
+        spawnCooldown = false;
     }
 }

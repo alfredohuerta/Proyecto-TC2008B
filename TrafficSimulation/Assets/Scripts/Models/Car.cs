@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
+public class Root
+{
+    public Car[] Car;
+}
+
 public class Car 
 {
-    public int uniqueID;
-    public string createdAt;
-    public string updatedAt;
-    public float positionX;
-    public float positionY;
-    public float positionZ;
-    public float speed;
+    public int id;
+    public int initial_lane;
+    public int lane;
+    public int track_completion;
+    public int speed;
 }
