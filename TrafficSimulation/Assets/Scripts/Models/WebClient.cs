@@ -2,59 +2,35 @@
 // C# client to interact with Python server via POST
 // Sergio Ruiz-Loza, Ph.D. March 2021
 
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+using System.IO;
+using System.Net;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class WebClient : MonoBehaviour
+namespace Models
 {
-    // IEnumerator - yield return
-    IEnumerator SendData(string data)
+    public class WebClient : MonoBehaviour
     {
-        WWWForm form = new WWWForm();
-        form.AddField("bundle", "the data");
-        string url = "http://localhost:5000";
-        using (UnityWebRequest www = UnityWebRequest.Post(url, form))
+        public static Car GetTraffic()
         {
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(data);
-            www.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-            www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type", "text/html");
-            www.SetRequestHeader("Content-Type", "application/json");
+            HttpWebRequest request = (HttpWebRequest) WebRequest.Create("http://localhost:5000/data");
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream());
 
-            yield return www.SendWebRequest();          // Talk to Python
-            if(www.isNetworkError || www.isHttpError)
-            {
-                Debug.Log(www.error);
-            }
-            else
-            {
-                Debug.Log(www.downloadHandler.text);    // Answer from Python
-                Vector3 tPos = JsonUtility.FromJson<Vector3>(www.downloadHandler.text.Replace('\'', '\"'));
-                //Debug.Log("Form upload complete!");
-                Debug.Log(tPos);
-            }
+            string json = reader.ReadToEnd();
+
+            return JsonUtility.FromJson<Car>(json);
         }
 
-    }
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        //string call = "What's up?";
-        Vector3 fakePos = new Vector3(3.44f, 0, -15.707f);
-        string json = EditorJsonUtility.ToJson(fakePos);
-        //StartCoroutine(SendData(call));
-        StartCoroutine(SendData(json));
-        // transform.localPosition
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        // Start is called before the first frame update
+        void Start()
+        {
         
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+        
+        }
     }
 }
