@@ -5,18 +5,20 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
     bool spawnCooldown = false;
+    public static int frame = 0;
     int carID = 0;
     public float time = 300f;
-    public float movementSpeed = 100f;
+    public static float movementSpeed = 10f;
     public GameObject[] vehicle;
     public Transform[] spawnpoint;
-    Car c;
+    public static Data d;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        Time.timeScale=10;
+        d = WebClient.GetTraffic();
+        Debug.Log(d);
     }
 
     // Update is called once per frame
@@ -24,37 +26,19 @@ public class Spawner : MonoBehaviour
     {
         if (!spawnCooldown){
             spawnCooldown = true;
-            c = WebClient.GetTraffic(carID);
-            StartCoroutine(SpawnVehicle(c));
-            carID++;
+            StartCoroutine(SpawnVehicle());
         }
     }
 
-    IEnumerator SpawnVehicle(Car c)
+    IEnumerator SpawnVehicle()
     {
         GameObject spawn;
-        switch(c.initial_lane)
-        {
-            case 0:
-                spawn = Instantiate(vehicle[0],spawnpoint[0].position,Quaternion.identity);
-                spawn.SetActive(true);
-                spawn.transform.Translate(Vector3.forward*c.speed*Time.deltaTime);
-                Destroy(spawn,time);
-                break;
-            case 1:
-                spawn = Instantiate(vehicle[1],spawnpoint[1].position,Quaternion.identity);
-                spawn.SetActive(true);
-                spawn.transform.Translate(Vector3.forward*c.speed*Time.deltaTime);
-                Destroy(spawn,time);
-                break;
-            case 2:
-                spawn = Instantiate(vehicle[2],spawnpoint[2].position,Quaternion.identity);
-                spawn.SetActive(true);
-                spawn.transform.Translate(Vector3.forward*c.speed*Time.deltaTime);
-                Destroy(spawn,time);
-                break;
-        }
-        yield return new WaitForSeconds(10f);
+        int x = Random.Range(0,4);
+        spawn = Instantiate(vehicle[x],spawnpoint[d.DataSet[frame].FrameData[carID].initial_lane].position,Quaternion.identity);
+        spawn.GetComponent<CarMovement>().id = carID;
+        carID += 1;
+        frame += 1;
+        yield return new WaitForSeconds(1f);
         spawnCooldown = false;
     }
 }

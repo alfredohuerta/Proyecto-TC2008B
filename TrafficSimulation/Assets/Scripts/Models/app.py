@@ -41,7 +41,6 @@ import datetime
 # Sergio Ruiz-Loza, Ph.D. March 2021
 import json
 
-
 def get_grid(model):
     # Obtiene el estado de los diferentes agentes
     # On Param - Model: Modelo con la información
@@ -56,60 +55,101 @@ def get_grid(model):
 
 
 class CarAgent(Agent):
-    def __init__(self, unique_id, model, will_stop):
+    def __init__(self, unique_id, model, will_stop, lane):
         super().__init__(unique_id, model)
         self.cells_Per_Cycle = 3
-        self.car_model = self.random.randrange(50, 255)
-        self.will_stop = will_stop
-        self.count_tilStop = 0
-        self.initial_lane = 0
+        self.car_model = self.random.randrange(50,255)
+        self.will_stop=will_stop
+        self.count_tilStop=0
+        self.end_road = False
+        self.will_middle=False
+        self.initial_lane = lane
 
-    def seek_obstacle(self):
-        self.cells_Per_Cycle = 3
-        # neighbours = self.get_neighbors(self.pos, moore=False, include_center=False, radious=3)
-        # print("Auto: ", self.unique_id, " Neighbours: ", neighbours)
-
-    def moveAgent(self):  # Mueve el agente en base a la velocidad que se asigna y si la casilla donde caerá está vacía
+    def moveAgent(self): # Mueve el agente en base a la velocidad que se asigna y si la casilla donde caerá está vacía
         if self.cells_Per_Cycle > 0:
-            new_pos = (self.pos[1] + self.cells_Per_Cycle)
-            if (self.model.grid.out_of_bounds((self.pos[0], new_pos))):
-                self.model.grid.remove_agent(self)
-                self.schedule.remove(self)
-            elif self.model.grid.is_cell_empty((self.pos[0], new_pos)):
-                self.model.grid.move_agent(self, ((self.pos[0], new_pos)))
-
+            new_pos=(self.pos[1] + self.cells_Per_Cycle)
+            self.is_Out()
+            if self.end_road == False:
+                if self.model.grid.is_cell_empty((self.pos[0], new_pos)):
+                    self.model.grid.move_agent(self,((self.pos[0], new_pos)))
+    
     def moveAgentStop(self):
         self.count_tilStop += 1
         if self.count_tilStop < 33:
-            if self.cells_Per_Cycle > 0:
-                new_pos = (self.pos[1] + self.cells_Per_Cycle)
-                if (self.model.grid.out_of_bounds((self.pos[0], new_pos))):
-                    self.model.grid.remove_agent(self)
-                    self.schedule.remove(self)
-                elif self.model.grid.is_cell_empty((self.pos[0], new_pos)):
-                    self.model.grid.move_agent(self, ((self.pos[0], new_pos)))
-
-    def step(self):
-        if self.will_stop == 0:
             self.moveAgent()
         else:
+            self.cells_Per_Cycle=0
+            neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center= False, radius= 5)
+            for i in neighbors:
+                if i.pos[0]==0 or i.pos[0]==2:
+                    if i.pos[1] > self.pos[1]+2:
+                        i.cells_Per_Cycle==3
+                    elif (i.pos[1] >= self.pos[1]-5 and i.pos[1] >= self.pos[1]-3):
+                        i.cells_Per_Cycle==2
+                    elif i.pos[1] > self.pos[1]-2 and i.pos[1] <= self.pos[1]+2:
+                        i.cells_Per_Cycle==1
+    
+    def is_Out(self):
+        new_pos=(self.pos[1] + self.cells_Per_Cycle)
+        if self.model.grid.out_of_bounds((self.pos[0], new_pos)):
+            self.end_road = True
+
+    def seek_Obstacle(self):
+        neighbor_count_left= 0
+        neighbor_count_right= 0
+        neighbor_count_center = 0
+        is_stopped=False
+        new_pos=(self.pos[1] + self.cells_Per_Cycle)
+        neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center= False, radius= 5)
+        for i in neighbors:
+            if i.pos[0] == 1 and i.pos[1] > self.pos[1] and i.will_stop==1 and i.cells_Per_Cycle==0: # Identifica si hay un auto detenido frente a self
+                is_stopped=True
+            if i.pos[0] == 0 and i.pos[1] > self.pos[1]: # Analiza en busca de si hay coches en el carril izquierdo adelante
+                neighbor_count_left += 1
+            elif i.pos[0] == 2 and i.pos[1] > self.pos[1]: # Analiza en busca de si hay coches en el carril derecho adelante
+                neighbor_count_right += 1
+        if is_stopped:
+            if neighbor_count_left > neighbor_count_right:
+                self.model.grid.move_agent(self,((2, new_pos)))
+            elif neighbor_count_left <= neighbor_count_right:
+                self.model.grid.move_agent(self,((0, new_pos)))
+                self.will_middle=True
+
+    def returnAgentmiddle(self): # Parte de la solución del equipo para reducir el tráfico
+        new_pos=(self.pos[1] + self.cells_Per_Cycle)
+        if self.model.grid.is_cell_empty((1, new_pos)):
+            self.cells_Per_Cycle=3
+            self.model.grid.move_agent(self,((1, new_pos)))
+            self.will_middle = False
+        else:
+            self.moveAgent()
+
+    def step(self):
+        if self.pos[0] == 1:
+            self.seek_Obstacle()
+        if self.will_stop==1:
             self.moveAgentStop()
+        if self.will_stop==0 and not self.will_middle:
+            self.moveAgent()
+        elif self.will_stop==0 and self.will_middle:
+            self.returnAgentmiddle()
 
 
 class RoadModel(Model):
     # Width: length of the road
     # Height: number or roads
-    def __init__(self, width, height): # Función que inicializa el modelo
+    def __init__(self, width, height, total_frames): # Función que inicializa el modelo
         self.grid = SingleGrid(width, height, False) # False stands for not making the grid a Torus
         self.schedule = SimultaneousActivation(self)
         self.running = True
         self.floor = np.zeros((width,height))
         self.car_Counter = 0
         self.iteration_Counter=0
-        self.car_stop = random.randint(120, 240)
+        self.car_stop = random.randint(120, 180)
         self.active_Cars = []
         self.json = {}
-        self.car_values = []
+        self.json_array = [None] * total_frames
+        self.frame_data = []
 
         self.datacollector = DataCollector(model_reporters = {"Grid": get_grid})
 
@@ -125,42 +165,57 @@ class RoadModel(Model):
         if (self.grid.is_cell_empty((lane, 0))): # Si la celda esta vacia, generar el agente al principio de la carretera
             self.iteration_Counter += 1
             if self.iteration_Counter != self.car_stop:
-                a = CarAgent(self.car_Counter, self, 0)
+                a = CarAgent(self.car_Counter, self, 0, lane)
                 self.grid.place_agent(a,(lane, 0))
             else:
-                a = CarAgent(self.car_Counter, self, 1)
+                a = CarAgent(self.car_Counter, self, 1, lane)
                 self.grid.place_agent(a,(1, 0))
-            a.initial_lane = a.pos[0]
             self.car_Counter += 1
             self.schedule.add(a)
             self.active_Cars.append(a)
 
 
-    def build_JSON(self) -> None: # Función que construye el JSON a medida que se van construyendo los autos, genera un objeto de Python
+    def build_JSON(self, frame) -> None: # Función que construye el JSON a medida que se van construyendo los autos, genera un objeto de Python
+        self.json.clear()
+        self.frame_data.clear()
         for agent in self.active_Cars:
-            self.json[agent.unique_id] =  {
+            index = {
                 "id": agent.unique_id,
                 "initial_lane": agent.initial_lane,
                 "lane": agent.pos[0],
                 "track_completion": agent.pos[1],
-                "speed": agent.cells_Per_Cycle,
+                "speed": agent.cells_Per_Cycle
             }
+            if(len(self.frame_data)!=0):
+                for car in self.frame_data:
+                    carFound = False
+                    if (agent.unique_id == car["id"]):
+                        self.frame_data[agent.unique_id] = index
+                        carFound = True
+                        break
+                if not carFound:
+                    self.frame_data.append(index)
+            else:
+                self.frame_data.append(index)
+        self.json_array[frame] = self.frame_data
+        self.json["DataSet"] = self.json_array
         
 
     def getJSON(self): # Función que convierte el objeto de Pyton en un JSON
         return json.dumps(self.json)
 
-    def step(self):
+    def step(self,frame):
+        print(frame)
         lane = self.random.randint(0, 2) # Genera aleatoriamente el carril donde iniciará el auto
         self.car_Generator(lane) # Genera el auto
         self.datacollector.collect(self) # Inicia la recolección de datos
         self.out_of_bounds_identificator()
         self.schedule.step() # Activa los agentes
-        self.build_JSON() # Genera el JSON.
+        self.build_JSON(frame) # Genera el JSON.
 
 
 # Definimos el tamaño del Grid
-WIDTH = 100  # Longitud de Carriles
+WIDTH = 200  # Longitud de Carriles
 HEIGHT = 3  # Carriles
 
 # Definimos el número máximo de generaciones a correr
@@ -168,9 +223,9 @@ MAX_GENERATIONS = 300
 
 # Registramos el tiempo de inicio y ejecutamos la simulación
 start_time = time.time()
-model = RoadModel(HEIGHT, WIDTH)
+model = RoadModel(HEIGHT, WIDTH, MAX_GENERATIONS)
 for i in range(MAX_GENERATIONS):
-    model.step()
+    model.step(i)
 
 # Imprimimos el tiempo que le tomó correr al modelo.
 print('Tiempo de ejecución:', str(datetime.timedelta(seconds=(time.time() - start_time))))
